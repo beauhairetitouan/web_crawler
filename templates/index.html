@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseur de Site Web</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .url-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .analyze-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .analyze-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .stat-value {
+            float: right;
+            color: var(--primary-color);
+        }
+
+        .error-message {
+            display: none;
+            color: var(--error-color);
+            background-color: #ffebee;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Analyseur de Site Web</h1>
+
+        <div class="input-section">
+            <input type="url" class="url-input" id="urlInput"
+                placeholder="Entrez l'URL du site à analyser (ex: https://example.com)" pattern="https?://.+" required>
+            <button class="analyze-btn" id="analyzeBtn">Analyser le site</button>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="loading" class="loading"></div>
+
+        <div id="results" class="results">
+            <div class="stat-card">
+                <span class="stat-label">Nombre de caractères</span>
+                <span class="stat-value" id="textCount">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Nombre d'images</span>
+                <span class="stat-value" id="imageCount">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Liens internes</span>
+                <span class="stat-value" id="internalLinkCount">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Liens externes</span>
+                <span class="stat-value" id="externalLinkCount">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Nombre de vidéos</span>
+                <span class="stat-value" id="videoCount">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Nombre de tableaux</span>
+                <span class="stat-value" id="tableCount">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Nombre de formulaires</span>
+                <span class="stat-value" id="formCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('analyzeBtn').addEventListener('click', function () {
+            const urlInput = document.getElementById('urlInput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            results.style.display = 'none';
+            loading.style.display = 'block';
+            analyzeBtn.disabled = true;
+
+            const url = urlInput.value;
+
+            if (!url.match(/^https?:\/\/.+/)) {
+                errorMessage.textContent = "Veuillez entrer une URL valide.";
+                errorMessage.style.display = 'block';
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+                return;
+            }
+
+            fetch('/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            })
+                .then(response => {
+                    loading.style.display = 'none';
+                    analyzeBtn.disabled = false;
+
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de l\'analyse. Veuillez réessayer.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        errorMessage.textContent = data.error;
+                        errorMessage.style.display = 'block';
+                    } else {
+                        document.getElementById('textCount').textContent = data.content.text_count;
+                        document.getElementById('imageCount').textContent = data.content.image_count;
+                        document.getElementById('internalLinkCount').textContent = data.content.internal_link_count;
+                        document.getElementById('externalLinkCount').textContent = data.content.external_link_count;
+                        document.getElementById('videoCount').textContent = data.content.video_count;
+                        document.getElementById('tableCount').textContent = data.content.table_count;
+                        document.getElementById('formCount').textContent = data.content.form_count;
+
+                        results.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
+                });
+        });
+    </script>
+
+</body>
+
+</html>
