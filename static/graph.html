@@ -88,8 +88,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "red", "font_size": 16, "id": "https://example.com", "label": "https://example.com", "shape": "dot", "size": 30}, {"color": "#97c2fc", "id": "https://www.iana.org/domains/example", "label": "https://www.iana.org/domains/example", "shape": "dot"}]);
-                  edges = new vis.DataSet([{"arrows": "to", "from": "https://example.com", "to": "https://www.iana.org/domains/example"}]);
+                  nodes = new vis.DataSet([{"color": "red", "font_size": 16, "id": "https://example.com/", "label": "https://example.com/", "shape": "dot", "size": 30}, {"color": "#97c2fc", "id": "https://www.iana.org/domains/example", "label": "https://www.iana.org/domains/example", "shape": "dot"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "https://example.com/", "to": "https://www.iana.org/domains/example"}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });

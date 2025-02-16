@@ -86,7 +86,8 @@
         }
 
         .results,
-        .graph-section {
+        .graph-section,
+        .history-section {
             display: none;
             margin-top: 2rem;
         }
@@ -166,6 +167,47 @@
             margin: 0%;
             margin-left: 5%;
         }
+
+        .history-entry {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .history-entry a {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .history-entry a:hover {
+            text-decoration: underline;
+        }
+
+        .history-entry .time {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 0.5rem;
+        }
+
+        .clear-history-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .clear-history-btn:hover {
+            background-color: #e57373;
+        }
     </style>
 </head>
 
@@ -207,6 +249,12 @@
             <h2 style="color: var(--primary-color); text-align: center;">🌐 Graphe des Liens</h2>
             <iframe id="graphFrame"></iframe>
         </div>
+
+        <div id="historySection" class="history-section">
+            <h2 style="color: var(--primary-color); text-align: center;"> Historique des Analyses</h2>
+            <div id="historyList"></div>
+            <button class="clear-history-btn" id="clearHistoryBtn">Vider l'historique</button>
+        </div>
     </div>
 
     <script>
@@ -218,6 +266,8 @@
             const results = document.getElementById('results');
             const graphSection = document.getElementById('graphSection');
             const graphFrame = document.getElementById('graphFrame');
+            const historySection = document.getElementById('historySection');
+            const historyList = document.getElementById('historyList');
 
             errorMessage.style.display = 'none';
             results.style.display = 'none';
@@ -268,6 +318,10 @@
                             graphFrame.src = data.graph_url;
                             graphSection.style.display = 'block';
                         }
+
+                        // Mettre à jour l'historique
+                        updateHistory(data.history);
+                        historySection.style.display = 'block';
                     }
                 })
                 .catch(error => {
@@ -275,6 +329,57 @@
                     errorMessage.style.display = 'block';
                 });
         });
+
+        document.getElementById('clearHistoryBtn').addEventListener('click', function () {
+            if (confirm('Êtes-vous sûr de vouloir vider l\'historique ?')) {
+                fetch('/clear_history', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        updateHistory([]);
+                        const historySection = document.getElementById('historySection');
+                        historySection.style.display = 'block';
+                    });
+            }
+        });
+
+        function updateHistory(history) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            history.reverse().forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'history-entry';
+                entryDiv.innerHTML = `
+                    <a href="#" class="history-link" data-url="${entry.url}">${entry.url}</a>
+                    <div class="time">Analysé le ${entry.time}</div>
+                `;
+                historyList.appendChild(entryDiv);
+            });
+
+            // Ajouter un gestionnaire d'événements aux liens de l'historique
+            const historyLinks = document.querySelectorAll('.history-link');
+            historyLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    document.getElementById('urlInput').value = url;
+                    document.getElementById('analyzeBtn').click();
+                });
+            });
+        }
+
+        // Charger l'historique initial
+        window.onload = function () {
+            fetch('/history')
+                .then(response => response.json())
+                .then(data => {
+                    updateHistory(data.history);
+                    const historySection = document.getElementById('historySection');
+                    historySection.style.display = 'block';
+                });
+        }
     </script>
 </body>
 

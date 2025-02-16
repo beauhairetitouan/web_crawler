@@ -3,8 +3,12 @@ from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify, render_template
 from pyvis.network import Network
 import os
+from datetime import datetime
 
 app = Flask(__name__)
+
+# Liste pour stocker l'historique des URL analysées avec leurs dates et heures
+history = []
 
 @app.route('/')
 def index():
@@ -14,7 +18,7 @@ def index():
 def scrape():
     data = request.get_json()
     url = data.get('url')
-    
+
     if not url:
         return jsonify({'error': 'URL manquante'}), 400
 
@@ -24,9 +28,14 @@ def scrape():
     # Génération du graphe interactif
     graph_path = generate_graph(graph_data)
 
+    # Ajouter à l'historique avec la date et l'heure
+    analysis_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    history.append({'url': url, 'time': analysis_time})
+
     return jsonify({
         'content': content,
-        'graph_url': f'/static/{graph_path}'  # URL du graphe à afficher dans l'iframe
+        'graph_url': f'/static/{graph_path}',  # URL du graphe à afficher dans l'iframe
+        'history': history  # Ajouter l'historique à la réponse
     })
 
 def scrape_url(url):
@@ -65,14 +74,13 @@ def scrape_url(url):
 def generate_graph(graph_data):
     net = Network(height="500px", width="100%", directed=True)
 
-    
     for node, links in graph_data.items():
         net.add_node(node, label=node, color='red', size=30, font_size=16)
         for link in links:
             net.add_node(link, label=link)
             net.add_edge(node, link)
 
-        # de gauche à droite
+    # de gauche à droite
     net.set_options("""
     var options = {
         "physics": {
@@ -90,10 +98,20 @@ def generate_graph(graph_data):
         }
     }
     """)
-    
+
     graph_path = 'graph.html'
     net.save_graph(f'static/{graph_path}')
     return graph_path
+
+@app.route('/history')
+def get_history():
+    return jsonify({'history': history})
+
+@app.route('/clear_history', methods=['POST'])
+def clear_history():
+    global history
+    history = []
+    return jsonify({'message': 'Historique vidé avec succès'})
 
 if __name__ == "__main__":
     if not os.path.exists('static'):
