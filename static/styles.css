@@ -78,7 +78,8 @@ h1 {
 
 .results,
 .graph-section,
-.history-section {
+.history-section,
+.website-section {
     display: none;
     margin-top: 2rem;
 }
@@ -198,4 +199,30 @@ h1 {
 
 .clear-history-btn:hover {
     background-color: #e57373;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 0 1rem;
+}
+
+.tab-btn.active {
+    background-color: #1976D2;
+}
+
+.tab-btn:hover {
+    background-color: #1565C0;
 }

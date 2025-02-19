@@ -26,26 +26,37 @@
         <div id="errorMessage" class="error-message"></div>
         <div id="loading" class="loading"></div>
 
-        <div id="results" class="results">
-            <div class="stat-card"><span class="stat-label">Nombre de caractères</span><span class="stat-value"
-                    id="textCount">0</span></div>
-            <div class="stat-card"><span class="stat-label">Nombre d'images</span><span class="stat-value"
-                    id="imageCount">0</span></div>
-            <div class="stat-card"><span class="stat-label">Liens internes</span><span class="stat-value"
-                    id="internalLinkCount">0</span></div>
-            <div class="stat-card"><span class="stat-label">Liens externes</span><span class="stat-value"
-                    id="externalLinkCount">0</span></div>
-            <div class="stat-card"><span class="stat-label">Nombre de vidéos</span><span class="stat-value"
-                    id="videoCount">0</span></div>
-            <div class="stat-card"><span class="stat-label">Nombre de tableaux</span><span class="stat-value"
-                    id="tableCount">0</span></div>
-            <div class="stat-card"><span class="stat-label">Nombre de formulaires</span><span class="stat-value"
-                    id="formCount">0</span></div>
+        <div class="tabs">
+            <button class="tab-btn active" id="tabContent">Contenu</button>
+            <button class="tab-btn" id="tabWebsite">Site Web</button>
         </div>
 
-        <div id="graphSection" class="graph-section">
-            <h2 style="color: var(--primary-color); text-align: center;">🌐 Graphe des Liens</h2>
-            <iframe id="graphFrame"></iframe>
+        <div id="contentSection" class="content-section">
+            <div id="results" class="results">
+                <div class="stat-card"><span class="stat-label">Nombre de caractères</span><span class="stat-value"
+                        id="textCount">0</span></div>
+                <div class="stat-card"><span class="stat-label">Nombre d'images</span><span class="stat-value"
+                        id="imageCount">0</span></div>
+                <div class="stat-card"><span class="stat-label">Liens internes</span><span class="stat-value"
+                        id="internalLinkCount">0</span></div>
+                <div class="stat-card"><span class="stat-label">Liens externes</span><span class="stat-value"
+                        id="externalLinkCount">0</span></div>
+                <div class="stat-card"><span class="stat-label">Nombre de vidéos</span><span class="stat-value"
+                        id="videoCount">0</span></div>
+                <div class="stat-card"><span class="stat-label">Nombre de tableaux</span><span class="stat-value"
+                        id="tableCount">0</span></div>
+                <div class="stat-card"><span class="stat-label">Nombre de formulaires</span><span class="stat-value"
+                        id="formCount">0</span></div>
+            </div>
+
+            <div id="graphSection" class="graph-section">
+                <h2 style="color: var(--primary-color); text-align: center;">🌐 Graphe des Liens</h2>
+                <iframe id="graphFrame"></iframe>
+            </div>
+        </div>
+
+        <div id="websiteSection" class="website-section">
+            <iframe id="websiteFrame"></iframe>
         </div>
 
         <div id="historySection" class="history-section">
