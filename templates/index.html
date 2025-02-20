@@ -10,12 +10,10 @@
 </head>
 
 <body>
-    <div class="container">
 
-        <div class="titre">
-            <img src="{{ url_for('static', filename='favicon.ico') }}" width="8%"></img>
-            <h1>Navigation de Site Web</h1>
-        </div>
+    <div class="nav">
+
+        <img src="{{ url_for('static', filename='favicon.ico') }}" width="auto" height="100%"></img>
 
         <div class="input-section">
             <input type="url" class="url-input" id="urlInput"
@@ -25,7 +23,9 @@
 
         <div id="errorMessage" class="error-message"></div>
         <div id="loading" class="loading"></div>
+    </div>
 
+    <div class="container">
         <div class="tabs">
             <button class="tab-btn active" id="tabContent">Contenu</button>
             <button class="tab-btn" id="tabWebsite">Site Web</button>
