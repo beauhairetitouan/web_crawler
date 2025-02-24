@@ -245,3 +245,10 @@ h1 {
 .tab-btn:hover {
     background-color: #1565C0;
 }
+
+.empty-history-message {
+    display: none;
+    text-align: center;
+    color: var(--text-color);
+    margin-top: 1rem;
+}

@@ -12,24 +12,41 @@ document.addEventListener('DOMContentLoaded', function () {
     const websiteFrame = document.getElementById('websiteFrame');
     const tabContent = document.getElementById('tabContent');
     const tabWebsite = document.getElementById('tabWebsite');
+    const tabHistory = document.getElementById('tabHistory');
     const contentSection = document.getElementById('contentSection');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const emptyHistoryMessage = document.getElementById('emptyHistoryMessage');
 
-    // Par défaut, afficher l'onglet contenu et cacher le site web
+    // Par défaut, afficher l'onglet contenu et cacher le site web et l'historique
     contentSection.style.display = 'block';
     websiteSection.style.display = 'none';
+    historySection.style.display = 'none';
 
     tabContent.addEventListener('click', function () {
         tabContent.classList.add('active');
         tabWebsite.classList.remove('active');
+        tabHistory.classList.remove('active');
         contentSection.style.display = 'block';
         websiteSection.style.display = 'none';
+        historySection.style.display = 'none';
     });
 
     tabWebsite.addEventListener('click', function () {
         tabWebsite.classList.add('active');
         tabContent.classList.remove('active');
+        tabHistory.classList.remove('active');
         websiteSection.style.display = 'block';
         contentSection.style.display = 'none';
+        historySection.style.display = 'none';
+    });
+
+    tabHistory.addEventListener('click', function () {
+        tabHistory.classList.add('active');
+        tabContent.classList.remove('active');
+        tabWebsite.classList.remove('active');
+        historySection.style.display = 'block';
+        contentSection.style.display = 'none';
+        websiteSection.style.display = 'none';
     });
 
     analyzeBtn.addEventListener('click', function () {
@@ -85,14 +102,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Mettre à jour l'historique
                     updateHistory(data.history);
-                    if (data.history && data.history.length > 0) {
-                        historySection.style.display = 'block';
-                    } else {
-                        historySection.style.display = 'none';
-                    }
-
-                    // Afficher le site web dans l'iframe
-                    websiteFrame.src = url;
                 }
             })
             .catch(error => {
@@ -101,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
-    document.getElementById('clearHistoryBtn').addEventListener('click', function () {
+    clearHistoryBtn.addEventListener('click', function () {
         if (confirm('Êtes-vous sûr de vouloir vider l\'historique ?')) {
             fetch('/clear_history', {
                 method: 'POST',
@@ -110,22 +119,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     updateHistory([]);
-                    historySection.style.display = 'none';
                 });
         }
     });
 
     function updateHistory(history) {
         historyList.innerHTML = '';
-        history.reverse().forEach(entry => {
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'history-entry';
-            entryDiv.innerHTML = `
-                <a href="#" class="history-link" data-url="${entry.url}">${entry.url}</a>
-                <div class="time">Analysé le ${entry.time}</div>
-            `;
-            historyList.appendChild(entryDiv);
-        });
+        if (history.length === 0) {
+            emptyHistoryMessage.style.display = 'block';
+            clearHistoryBtn.style.display = 'none';
+        } else {
+            emptyHistoryMessage.style.display = 'none';
+            clearHistoryBtn.style.display = 'block';
+            history.reverse().forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'history-entry';
+                entryDiv.innerHTML = `
+                    <a href="#" class="history-link" data-url="${entry.url}">${entry.url}</a>
+                    <div class="time">Analysé le ${entry.time}</div>
+                `;
+                historyList.appendChild(entryDiv);
+            });
+        }
 
         // Ajouter un gestionnaire d'événements aux liens de l'historique
         const historyLinks = document.querySelectorAll('.history-link');
@@ -145,11 +160,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 updateHistory(data.history);
-                if (data.history && data.history.length > 0) {
-                    historySection.style.display = 'block';
-                } else {
-                    historySection.style.display = 'none';
-                }
             });
     }
 });
