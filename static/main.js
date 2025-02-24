@@ -50,13 +50,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     analyzeBtn.addEventListener('click', function () {
+        const url = urlInput.value.trim();
+
+        if (url === "") {
+            errorMessage.textContent = "Veuillez saisir une URL.";
+            errorMessage.style.display = 'block';
+            return;
+        }
+
         errorMessage.style.display = 'none';
         results.style.display = 'none';
         graphSection.style.display = 'none';
         loading.style.display = 'block';
         analyzeBtn.disabled = true;
-
-        const url = urlInput.value;
 
         if (!url.match(/^https?:\/\/.+/)) {
             errorMessage.textContent = "Veuillez entrer une URL valide.";
@@ -102,6 +108,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Mettre à jour l'historique
                     updateHistory(data.history);
+
+                    // Afficher le site web dans l'iframe
+                    websiteFrame.src = url;
+                    websiteSection.style.display = 'block'; // Assurez-vous que l'iframe est visible
                 }
             })
             .catch(error => {
