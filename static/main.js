@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const urlInput = document.getElementById('urlInput');
+    const depthInput = document.getElementById('depthInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const errorMessage = document.getElementById('errorMessage');
     const loading = document.getElementById('loading');
@@ -17,10 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const clearHistoryBtn = document.getElementById('clearHistoryBtn');
     const emptyHistoryMessage = document.getElementById('emptyHistoryMessage');
 
-    // Par défaut, afficher l'onglet contenu et cacher le site web et l'historique
     contentSection.style.display = 'block';
     websiteSection.style.display = 'none';
     historySection.style.display = 'none';
+    websiteFrame.style.display = 'none';
 
     tabContent.addEventListener('click', function () {
         tabContent.classList.add('active');
@@ -29,15 +30,25 @@ document.addEventListener('DOMContentLoaded', function () {
         contentSection.style.display = 'block';
         websiteSection.style.display = 'none';
         historySection.style.display = 'none';
+        websiteFrame.style.display = 'none';
     });
 
     tabWebsite.addEventListener('click', function () {
         tabWebsite.classList.add('active');
         tabContent.classList.remove('active');
         tabHistory.classList.remove('active');
-        websiteSection.style.display = 'block';
-        contentSection.style.display = 'none';
-        historySection.style.display = 'none';
+
+        if (urlInput.value.trim() !== "") {
+            websiteSection.style.display = 'block';
+            contentSection.style.display = 'none';
+            historySection.style.display = 'none';
+            websiteFrame.style.display = 'block';
+        } else {
+            websiteSection.style.display = 'none';
+            contentSection.style.display = 'block';
+            historySection.style.display = 'none';
+            websiteFrame.style.display = 'none';
+        }
     });
 
     tabHistory.addEventListener('click', function () {
@@ -47,10 +58,12 @@ document.addEventListener('DOMContentLoaded', function () {
         historySection.style.display = 'block';
         contentSection.style.display = 'none';
         websiteSection.style.display = 'none';
+        websiteFrame.style.display = 'none';
     });
 
     analyzeBtn.addEventListener('click', function () {
         const url = urlInput.value.trim();
+        const depth = parseInt(depthInput.value, 10);
 
         if (url === "") {
             errorMessage.textContent = "Veuillez saisir une URL.";
@@ -75,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/scrape', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url })
+            body: JSON.stringify({ url: url, depth: depth })
         })
             .then(response => {
                 loading.style.display = 'none';
@@ -106,12 +119,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         graphSection.style.display = 'block';
                     }
 
-                    // Mettre à jour l'historique
                     updateHistory(data.history);
 
-                    // Afficher le site web dans l'iframe
                     websiteFrame.src = url;
-                    websiteSection.style.display = 'block'; // Assurez-vous que l'iframe est visible
+                    websiteFrame.style.display = 'block';
                 }
             })
             .catch(error => {
@@ -152,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Ajouter un gestionnaire d'événements aux liens de l'historique
         const historyLinks = document.querySelectorAll('.history-link');
         historyLinks.forEach(link => {
             link.addEventListener('click', function (event) {
@@ -164,7 +174,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Charger l'historique initial
     window.onload = function () {
         fetch('/history')
             .then(response => response.json())

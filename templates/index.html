@@ -10,28 +10,26 @@
 </head>
 
 <body>
-
     <div class="nav">
-
         <img src="{{ url_for('static', filename='favicon.ico') }}" width="auto" height="100%"></img>
-
         <div class="input-section">
             <input type="url" class="url-input" id="urlInput"
                 placeholder="Entrez l'URL du site à analyser (ex: https://example.com)" pattern="https?://.+" required>
             <button class="analyze-btn" id="analyzeBtn">Analyser le site</button>
+            <div class="depth-control">
+                <label for="depthInput">Profondeur : </label>
+                <input type="number" id="depthInput" name="depthInput" min="1" max="5" value="1">
+            </div>
         </div>
-
         <div id="errorMessage" class="error-message"></div>
         <div id="loading" class="loading"></div>
     </div>
-
     <div class="container">
         <div class="tabs">
             <button class="tab-btn active" id="tabContent">Caractéristiques</button>
             <button class="tab-btn" id="tabWebsite">Site Web</button>
             <button class="tab-btn" id="tabHistory">Historique</button>
         </div>
-
         <div id="contentSection" class="content-section">
             <div id="results" class="results">
                 <h2 style="color: var(--primary-color); text-align: center;"> Caractéristiques de la page web</h2>
@@ -50,27 +48,22 @@
                 <div class="stat-card"><span class="stat-label">Nombre de formulaires</span><span class="stat-value"
                         id="formCount">0</span></div>
             </div>
-
             <div id="graphSection" class="graph-section">
                 <h2 style="color: var(--primary-color); text-align: center;">🌐 Graphe des liens</h2>
                 <iframe id="graphFrame"></iframe>
             </div>
         </div>
-
         <div id="websiteSection" class="website-section">
             <h2 style="color: var(--primary-color); text-align: center;">Site web</h2>
             <iframe id="websiteFrame"></iframe>
         </div>
-
         <div id="historySection" class="history-section">
             <h2 style="color: var(--primary-color); text-align: center;"> Historique des analyses</h2>
             <div id="historyList"></div>
             <button class="clear-history-btn" id="clearHistoryBtn">Vider l'historique</button>
             <div id="emptyHistoryMessage" class="empty-history-message">Historique vide</div>
         </div>
-
     </div>
-
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 
