@@ -270,3 +270,25 @@ h1 {
     border-radius: 5px;
     text-align: center;
 }
+
+.fullscreen-btn {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.fullscreen-btn:hover {
+    background-color: #1976D2;
+}
+
+.fullscreen-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

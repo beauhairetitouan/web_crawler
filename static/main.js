@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
     historySection.style.display = 'none';
     websiteFrame.style.display = 'none';
 
+    // Onglet "Caractéristiques"
     tabContent.addEventListener('click', function () {
         tabContent.classList.add('active');
         tabWebsite.classList.remove('active');
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
         websiteFrame.style.display = 'none';
     });
 
+    // Onglet "Site Web"
     tabWebsite.addEventListener('click', function () {
         tabWebsite.classList.add('active');
         tabContent.classList.remove('active');
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Onglet "Historique"
     tabHistory.addEventListener('click', function () {
         tabHistory.classList.add('active');
         tabContent.classList.remove('active');
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         websiteFrame.style.display = 'none';
     });
 
+    // Action d'analyse de l'URL
     analyzeBtn.addEventListener('click', function () {
         const url = urlInput.value.trim();
         const depth = parseInt(depthInput.value, 10);
@@ -104,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     errorMessage.textContent = data.error;
                     errorMessage.style.display = 'block';
                 } else {
+                    // Mise à jour des statistiques
                     document.getElementById('textCount').textContent = data.content.text_count;
                     document.getElementById('imageCount').textContent = data.content.image_count;
                     document.getElementById('internalLinkCount').textContent = data.content.internal_link_count;
@@ -114,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     results.style.display = 'block';
 
+                    // Mise à jour du graphe
                     if (data.graph_url) {
                         graphFrame.src = data.graph_url;
                         graphSection.style.display = 'block';
@@ -121,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     updateHistory(data.history);
 
+                    // Affichage du site web dans un iframe
                     websiteFrame.src = url;
                     websiteFrame.style.display = 'block';
                 }
@@ -131,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
+    // Effacer l'historique
     clearHistoryBtn.addEventListener('click', function () {
         if (confirm('Êtes-vous sûr de vouloir vider l\'historique ?')) {
             fetch('/clear_history', {
@@ -163,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // Ajouter un événement pour chaque lien d'historique
         const historyLinks = document.querySelectorAll('.history-link');
         historyLinks.forEach(link => {
             link.addEventListener('click', function (event) {
@@ -174,6 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Chargement initial de l'historique
     window.onload = function () {
         fetch('/history')
             .then(response => response.json())
@@ -181,4 +191,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 updateHistory(data.history);
             });
     }
+
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    fullscreenBtn.addEventListener('click', function () {
+        if (graphFrame.requestFullscreen) {
+            graphFrame.requestFullscreen();
+        } else if (graphFrame.mozRequestFullScreen) { // Firefox
+            graphFrame.mozRequestFullScreen();
+        } else if (graphFrame.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            graphFrame.webkitRequestFullscreen();
+        } else if (graphFrame.msRequestFullscreen) { // IE/Edge
+            graphFrame.msRequestFullscreen();
+        }
+    });
+
+    // Gérer la sortie du plein écran
+    document.addEventListener('fullscreenchange', function () {
+        if (!document.fullscreenElement) {
+            fullscreenBtn.style.display = 'block'; // Réafficher le bouton quand on sort du plein écran
+        }
+    });
 });
