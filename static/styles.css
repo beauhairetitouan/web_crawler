@@ -42,7 +42,7 @@ h1 {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    width: 90%;
+    width: 95%;
     height: 10%;
     margin: 0 auto;
     background: white;
@@ -254,12 +254,13 @@ h1 {
 
 .depth-control {
     margin-top: 1rem;
+    margin-left: 2%;
     display: flex;
     align-items: center;
 }
 
 .depth-control label {
-    margin-right: 0.5rem;
+
     font-weight: bold;
 }
 
@@ -269,6 +270,8 @@ h1 {
     border: 2px solid #ddd;
     border-radius: 5px;
     text-align: center;
+    margin-left: 1rem;
+
 }
 
 .fullscreen-btn {
