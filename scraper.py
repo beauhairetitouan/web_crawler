@@ -12,6 +12,8 @@ def scrape_url(url, depth, first_url, rec, scraped_urls=None):
     if depth == 0 or url in scraped_urls:
         return {}, {}
 
+    print(f"Scraping URL: {url} with depth {depth}")
+
     try:
         # Ajouter l'URL au set des URLs déjà scrappées
         scraped_urls.add(url)
@@ -61,43 +63,15 @@ def scrape_url(url, depth, first_url, rec, scraped_urls=None):
                 elif parsed_href.netloc:
                     external_links.add(full_url)
                 
+        print(f"URL: {url}, Profondeur: {depth}, Liens internes: {len(internal_links)}, Liens externes: {len(external_links)}")
 
         # Autres statistiques
         video_count = len(soup.find_all('video'))
         table_count = len(soup.find_all('table'))
         form_count = len(soup.find_all('form'))
 
-        # Récursivement scraper les liens internes si la profondeur est > 0
-        if depth > 1:
-            # Initialisation des structures de données
-            graph_data = {url: list(internal_links | external_links)}
-            internal_graph_data = {}
-
-            for internal_link in internal_links:
-                # Scrape à la profondeur suivante pour les liens internes pointant vers le même domaine
-                new_content, new_graph = scrape_url(internal_link, depth - 1,first_url, 0, scraped_urls)
-
-                # Ajouter les données et le graphe interne
-                internal_graph_data.update(new_graph)
-
-            # Combine les données obtenues
-            graph_data.update(internal_graph_data)
-
-            return {
-                'text_count': text_count,
-                'page_size_bytes': page_size,
-                'image_count': image_count,
-                'internal_link_count': len(internal_links),
-                'external_link_count': len(external_links),
-                'video_count': video_count,
-                'table_count': table_count,
-                'form_count': form_count,
-                'internal_links': list(internal_links),  # Convertir en liste pour JSON
-                'external_links': list(external_links)
-            }, graph_data
-
-        # Si on ne scrappe pas récursivement (profondeur 1), on renvoie seulement les données actuelles
-        return {
+        # Créer les données pour l'URL actuelle
+        current_data = {
             'text_count': text_count,
             'page_size_bytes': page_size,
             'image_count': image_count,
@@ -108,7 +82,40 @@ def scrape_url(url, depth, first_url, rec, scraped_urls=None):
             'form_count': form_count,
             'internal_links': list(internal_links),  # Convertir en liste pour JSON
             'external_links': list(external_links)
-        }, {url: list(internal_links | external_links)}
+        }
+
+        # Initialisation du graphe
+        graph_data = {url: list(internal_links | external_links)}
+
+        # Récursivement scraper les liens internes si la profondeur est > 1
+        # Limiter la profondeur maximale à 2
+        if depth > 1 and depth <= 2:
+            # Limiter le nombre de liens à scraper
+            max_links = 20
+            links_to_scrape = list(internal_links)[:max_links]
+            print(f"Scraping {len(links_to_scrape)}/{len(internal_links)} liens internes pour la profondeur {depth-1}")
+            
+            for internal_link in links_to_scrape:
+                # Scrape à la profondeur suivante pour les liens internes
+                new_content, new_graph = scrape_url(internal_link, depth - 1, first_url, 0, scraped_urls)
+                
+                # Ajouter les données du graphe
+                for key, value in new_graph.items():
+                    # Éviter les doublons en fusionnant les listes si la clé existe déjà
+                    if key in graph_data:
+                        existing_links = set(graph_data[key])
+                        new_links = set(value)
+                        graph_data[key] = list(existing_links | new_links)
+                    else:
+                        graph_data[key] = value
+                
+                # Debug: vérifier les données retournées
+                print(f"URL: {internal_link}, Profondeur: {depth-1}, Nœuds retournés dans le graphe: {len(new_graph)}")
+
+        print(f"URL: {url}, Profondeur: {depth}, Nœuds dans le graphe: {len(graph_data)}")
+        # Retourner les données actuelles et le graphe
+        return current_data, graph_data
 
     except requests.RequestException as e:
+        print(f"Erreur lors de la requête pour {url}: {e}")
         return {'error': f"Erreur lors de la requête: {e}"}, {}
