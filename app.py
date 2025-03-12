@@ -14,12 +14,15 @@ def index():
 def scrape():
     data = request.get_json()
     url = data.get('url')
+    depth = data.get('depth')
 
     if not url:
         return jsonify({'error': 'URL manquante'}), 400
+    
+    first_url = url
 
     # Scraping du site
-    content, graph_data = scrape_url(url)
+    content, graph_data = scrape_url(url, depth, first_url, rec=1)
 
     # Génération du graphe interactif
     graph_path = generate_graph(graph_data)

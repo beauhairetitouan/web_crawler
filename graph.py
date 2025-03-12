@@ -17,11 +17,13 @@ def generate_graph(graph_data):
             nodes.add(node)
             positions[node] = (0, 0)
 
+        
+
         # Placement vertical des liens
         num_links = len(links)
         start_y = -(num_links * 25)
         y_step = 50
-        x_internal = -400  # Espacement horizontal plus grand
+        x_internal =  -400  # Espacement horizontal plus grand
         x_external = 400
 
         for i, link in enumerate(links):
@@ -86,9 +88,7 @@ def generate_graph(graph_data):
         "keyboard": {
             "enabled": true,
             "bindToWindow": true
-        },
-        "minZoom": 0.8,
-        "maxZoom": 1.8
+        }
     }
 }
 """)
